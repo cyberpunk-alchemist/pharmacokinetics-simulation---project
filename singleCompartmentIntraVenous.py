@@ -5,10 +5,12 @@ import numpy as np
 class SingleCompartmentintraVenous(Model):
     """single compartment model of per oral drug administration, first order kinetics assumed\n
     Ac: ammount of medication in central compartment\n
-    k_e: rate constant of elimination"""
-    def __init__(self, k_e: float|int) -> None:
+    Parameters required: \n
+    k_e: rate constant of elimination\n
+    enter parameters as dictionary, {"k_e": value}"""
+    def __init__(self, parameters: dict[str,float|int]) -> None:
         super().__init__()
-        self.k_e = k_e
+        self.k_e = parameters["k_e"]
         self.n_output = 2
 
     def rhs(self,t,Ac:float|int) -> float|int:

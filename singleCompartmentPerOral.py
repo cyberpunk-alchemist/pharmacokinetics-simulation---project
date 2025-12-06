@@ -7,12 +7,14 @@ class SingleCompartmentPerOral(Model):
     """single compartment model of per oral drug administration, first order kinetics assumed\n
     Ag: ammount of medication in gastrointestinal compartment\n
     Ac: ammount of medication in central compartment\n
+    Parameters required: \n
     k_a: rate constant of absorption\n
-    k_e: rate constant of elimination"""
-    def __init__(self,k_a: float|int, k_e: float|int) -> None:
+    k_e: rate constant of elimination\n
+    enter parameters as dictionary, {"k_a": value, "k_e": value}"""
+    def __init__(self,parameters: dict[str,float|int]) -> None:
         super().__init__()
-        self.k_a = k_a
-        self.k_e = k_e
+        self.k_a = parameters["k_a"]
+        self.k_e = parameters["k_e"]
         self.n_output = 3
 
     def rhs(self,t,A: tuple) -> tuple:

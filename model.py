@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class Model(ABC): #abstract class
-    def __init__(self,) -> None:
+    def __init__(self) -> None:
         self.n_output = ...
 
     @abstractmethod 
