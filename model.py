@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Model(ABC): #abstract class
     def __init__(self) -> None:
-        self.n_output = ...
+        self.name_output = ...
 
     @abstractmethod 
     def rhs(self,t):
@@ -12,5 +12,6 @@ class Model(ABC): #abstract class
     
     @abstractmethod
     def solve():
-        """finds numerical solution for desired system"""
+        """finds numerical solution for desired system\n
+        allways put the initial conditions as a tuple with 'Dose' as the first one"""
         pass

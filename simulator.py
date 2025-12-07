@@ -2,7 +2,6 @@ from plotter import Plotter
 from singleCompartmentPerOral import SingleCompartmentPerOral
 from singleCompartmentIntraVenous import SingleCompartmentintraVenous
 from alvailableModels import AvailableModels
-from scipy.integrate import solve_ivp
 import numpy as np
 
 class Simulator():
@@ -19,24 +18,23 @@ class Simulator():
         self.dose_int = 24 #h
         self.chosen_model = AvailableModels.intraVenousSC
         self.model_params={"k_e":1,"k_a":1}
+        ####
+        self.data={}
+        self.run_ID = 1
+        self.plotter = Plotter()
     
-    def init_model(self, type: AvailableModels,**kwargs) -> None:
+    def clear_data(self) -> None:
+        self.data = {}
+        self.run_ID = 1
+    
+    def init_model(self) -> None:
         """initilizes desired pharmacokinetic model\n
         type: enumeration of available models\n
-        kwargs: parameters of chosen model (rate konstants)"""
-        if type.value == 1:
-            k_e = kwargs.get("k_e",None)
-            if k_e == None:
-                raise ValueError("Parameter 'k_e' not specified")
-            self.model = SingleCompartmentintraVenous(k_e=k_e)
-        elif type.value == 2:
-            k_e = kwargs.get("k_e",None)
-            k_a = kwargs.get("k_a",None)
-            if k_e == None:
-                raise ValueError("Parameter 'k_e' not specified")
-            if k_a == None:
-                raise ValueError("Parameter 'k_a' not specified")
-            self.model = SingleCompartmentPerOral(k_a=k_a,k_e=k_e)
+        parameters: parameters of chosen model (rate konstants) as a dictionary"""
+        if self.chosen_model == AvailableModels.intraVenousSC:
+            self.model = SingleCompartmentintraVenous(parameters=self.model_params) # type: ignore
+        elif self.chosen_model == AvailableModels.perOralSC:
+            self.model = SingleCompartmentPerOral(parameters=self.model_params) # type: ignore
         else:
             raise ValueError("Unknown pharmacokinetic model: cannot initialize")
         
@@ -62,11 +60,19 @@ class Simulator():
         self.chosen_model = kwargs.get("chosen_model",self.chosen_model)
 
     def run(self):
-        self.init_model(self.chosen_model,k_a=self.model_params)
-           #nejak to proiterovat aby to fungovalo 
+        init_conds = (self.D,0)
         if self.rep_D == False:
-            ...
+            sol = self.model.solve(self.start_t,self.stop_t,self.nsteps,init_conds) #type: ignore
+            self.data.update({f"run{self.run_ID}: t": sol[0]})
+            names=[]
+            for index,out in enumerate(self.model.name_output): #type: ignore
+                names.append(f"run{self.run_ID}: {out}")
+                self.data.update({names[-1]: sol[index+1]})
+                self.plotter.load_data(names[-1],sol[0],sol[index+1])
+            self.plotter.plot_data(names)
         else:
             raise RuntimeError("repetition not implemented so far")
+            # chce to doimplementovat
+        self.run_ID +=1
 
 
