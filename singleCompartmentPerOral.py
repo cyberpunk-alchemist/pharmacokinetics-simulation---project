@@ -15,7 +15,7 @@ class SingleCompartmentPerOral(Model):
         super().__init__()
         self.k_a = parameters["k_a"]
         self.k_e = parameters["k_e"]
-        self.name_output = self.name_output = ("A_g","A_c")
+        self.name_output = self.name_output = ("Concentration in gastrointestinal compartment","Concentration in central compartment")
 
     def rhs(self,t,A: tuple) -> tuple:
         """returns the right hand sides of ODEs system describing this model\n
@@ -45,4 +45,4 @@ class SingleCompartmentPerOral(Model):
             rtol=1e-8,
             atol=1e-10
         )
-        return (sol.x, sol.y[0], sol.y[1])
+        return (sol.t, sol.y[0], sol.y[1])

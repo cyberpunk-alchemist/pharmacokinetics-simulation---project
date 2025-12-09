@@ -11,7 +11,7 @@ class SingleCompartmentintraVenous(Model):
     def __init__(self, parameters: dict[str,float|int]) -> None:
         super().__init__()
         self.k_e = parameters["k_e"]
-        self.name_output = ("A_c")
+        self.name_output = (["Concentration in central compartment"])
 
     def rhs(self,t,Ac:float|int) -> float|int:
         """returns the right hand sides of ODE describing this model\n
@@ -36,4 +36,4 @@ class SingleCompartmentintraVenous(Model):
             rtol=1e-8,
             atol=1e-10
         )
-        return (sol.x, sol.y[0])
+        return (sol.t, sol.y[0])

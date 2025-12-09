@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from simulator import Simulator
 from alvailableModels import AvailableModels
+import time
 
 class Interface(ctk.CTk):
     def __init__(self):
@@ -29,6 +30,7 @@ class Interface(ctk.CTk):
 
     def run_button_callback(self):
         """callback function for running the simulation"""
+        self.error_lable.configure(text="Running...",text_color="white")
         if self.scrollable_frame.chosen_model.get() == "IntraVenous":
             self.simulator.set_parameters(chosen_model=AvailableModels.intraVenousSC)
         elif self.scrollable_frame.chosen_model.get() == "PerOral":
@@ -37,20 +39,34 @@ class Interface(ctk.CTk):
             raise ValueError("Unknown model")
         
         try:
+            if float(self.scrollable_frame.entry_1.get()) > float(self.scrollable_frame.entry_2.get()):
+                self.error_lable.configure(text="Error: You can't travel back in time!",text_color="red")
+                return
             self.simulator.set_parameters(
                 start_t = float(self.scrollable_frame.entry_1.get()),
                 stop_t= float(self.scrollable_frame.entry_2.get()),
                 nsteps = int(self.scrollable_frame.entry_3.get()),
                 D = float(self.scrollable_frame.entry_4.get()),
                 Vd = float(self.scrollable_frame.entry_5.get()),
-                rep_D=self.scrollable_frame.cb_option1_var,
-                dose_int = float(self.scrollable_frame.entry_6.get())
+                rep_D=self.scrollable_frame.cb_option1_var.get(),
+                plot_title=self.scrollable_frame.entry_9.get()
             )
-            self.error_lable.configure(text="")
+            if self.scrollable_frame.cb_option1_var:
+                self.simulator.set_parameters(dose_int = float(self.scrollable_frame.entry_6.get()))
+            if self.scrollable_frame.chosen_model.get() == "IntraVenous":
+                 self.simulator.set_parameters(model_params={"k_e": float(self.scrollable_frame.entry_7.get())})
+            elif self.scrollable_frame.chosen_model.get() == "PerOral":
+                self.simulator.set_parameters(model_params={"k_e": float(self.scrollable_frame.entry_7.get()), "k_a": float(self.scrollable_frame.entry_8.get())})
         except:
-            self.error_lable.configure(text="Error: Wrong type of entry!")
+            self.error_lable.configure(text="Error: Wrong type of entry!",text_color="red")
             return
-
+        try:
+            self.simulator.init_model()
+            self.simulator.run()
+        except:
+            self.error_lable.configure(text="Error: Simulation failed!",text_color="red")
+            return
+        self.error_lable.configure(text="",text_color="red")
 
 
 class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
@@ -133,6 +149,14 @@ class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
         self.entry_6.grid_remove()
         self.entry_label_7.grid()
         self.entry_7.grid()
+
+        self.label = ctk.CTkLabel(self, text="Plot parameters:", font=("Helvetica",14,"bold"))
+        self.label.grid(row=13, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+
+        self.entry_label_9 = ctk.CTkLabel(self, text="Plot title:")
+        self.entry_label_9.grid(row=14, column=0, padx=10, pady=5, sticky="w")
+        self.entry_9 = ctk.CTkEntry(self, width=200, placeholder_text="")
+        self.entry_9.grid(row=14, column=1, padx=10, pady=5, sticky="w") 
 
     def remove_params(self):
         self.entry_7.grid_remove()

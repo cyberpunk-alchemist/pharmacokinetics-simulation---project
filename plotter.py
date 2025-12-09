@@ -22,9 +22,10 @@ class Plotter():
         self.fig = None
         self.ax = None
 
-    def plot_data(self,name: str|List[str]) -> None:
+    def plot_data(self,name: str|List[str], **kwargs) -> None:
         """opens the matplotlib window, plots data set from memory with name as a key
         name: string or list of strings if multiple datasets shall be plotted"""
+        plot_title = kwargs.get("plot_title",None)
         self.fig, self.ax = plt.subplots()
         self.ax.set_xlabel("t [h]")
         self.ax.set_ylabel("c(t) [mg/l]")
@@ -37,6 +38,8 @@ class Plotter():
         else:
             raise ValueError("parameter name shall only be string or list of strings")
         self.ax.legend()
+        if plot_title != None:
+            self.ax.set_title(plot_title)
         plt.show()
 
     def remove_data(self, name: str) -> None:
