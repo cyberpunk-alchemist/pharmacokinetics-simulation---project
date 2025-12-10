@@ -20,6 +20,8 @@ class Simulator():
         self.chosen_model = AvailableModels.intraVenousSC
         self.model_params={"k_e":1,"k_a":1}
         self.plot_title = None
+        self.min_dose = None
+        self.max_dose = None
         ####
         self.data={}
         self.run_ID = 1
@@ -59,18 +61,19 @@ class Simulator():
         self.model_params=kwargs.get("model_params",self.model_params)
         self.chosen_model = kwargs.get("chosen_model",self.chosen_model)
         self.plot_title = kwargs.get("plot_title",self.plot_title)
+        self.min_dose = kwargs.get("min_dose",self.min_dose)
+        self.max_dose = kwargs.get("max_dose",self.max_dose)
 
     def run(self):
         init_conds = [self.D,0]
+        names=[]
         if self.rep_D == False:
             sol = self.model.solve(self.start_t,self.stop_t,self.nsteps,init_conds) #type: ignore
             self.data.update({f"run{self.run_ID}: t": sol[0]})
-            names=[]
             for index,out in enumerate(self.model.name_output): #type: ignore
                 names.append(f"{out}") #run{self.run_ID}: 
                 self.data.update({names[-1]: sol[index+1]})
                 self.plotter.load_data(names[-1],sol[0],sol[index+1])
-            self.plotter.plot_data(names,plot_title=self.plot_title)
         else:
             ndoses_float = (self.stop_t - self.start_t)/self.dose_int
             ndoses = math.floor(ndoses_float)
@@ -88,7 +91,6 @@ class Simulator():
                     sol[index+1] = np.concatenate((sol[index+1], sol_part[index+1]))
                     init_conds[index] = sol[index+1][-1]
                 init_conds[0] = init_conds[0] + self.D
-    
             if ndoses_float != ndoses: #remaining simulation time which is not divided
                 start = self.start_t+ndoses*self.dose_int
                 steps = self.nsteps - steps_per_cycle*ndoses
@@ -98,16 +100,18 @@ class Simulator():
                     sol[index+1] = np.concatenate((sol[index+1], sol_part[index+1]))
                     init_conds[index] = sol[index+1][-1]
                 init_conds[0] = init_conds[0] + self.D
-            
-            names=[]
             for index,out in enumerate(self.model.name_output): #type: ignore
                 names.append(f"{out}") #run{self.run_ID}: 
                 self.data.update({names[-1]: sol[index+1]})
                 self.plotter.load_data(names[-1],sol[0],sol[index+1])#type:ignore
-            self.plotter.plot_data(names,plot_title=self.plot_title)
-            
+        
+        if self.min_dose != None:
+            self.plotter.load_data("Minimal effective dose",[self.start_t,self.stop_t],[self.min_dose,self.min_dose])
+            names.append("Minimal effective dose")
+        if self.max_dose != None:
+            self.plotter.load_data("Maximal safe dose",[self.start_t,self.stop_t],[self.max_dose,self.max_dose])
+            names.append("Maximal safe dose")
 
-
-
+        self.plotter.plot_data(names,plot_title=self.plot_title)
         self.run_ID +=1
 
