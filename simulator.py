@@ -26,7 +26,7 @@ class Simulator():
         self.data={}
         self.run_ID = 1
         self.plotter = Plotter()
-    
+
     def clear_data(self) -> None:
         self.data = {}
         self.run_ID = 1
@@ -113,5 +113,7 @@ class Simulator():
             names.append("Maximal safe dose")
 
         self.plotter.plot_data(names,plot_title=self.plot_title)
+        for name in names:
+            self.plotter.remove_data(name)
         self.run_ID +=1
 
