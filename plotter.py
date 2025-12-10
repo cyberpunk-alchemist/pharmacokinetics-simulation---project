@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from typing import List
+import matplotlib.image as mpimg
 
 class Plotter():
     def __init__(self):
@@ -27,6 +28,14 @@ class Plotter():
         name: string or list of strings if multiple datasets shall be plotted"""
         plot_title = kwargs.get("plot_title",None)
         self.fig, self.ax = plt.subplots()
+        ####
+        if plot_title == "fox":
+                img = mpimg.imread("do_not_open.png")
+                self.ax.imshow(img)
+                self.ax.axis("off")
+                plt.show()
+                return
+        ###
         self.ax.set_xlabel("t [h]")
         self.ax.set_ylabel("c(t) [mg/l]")
         #self.ax.set_title("Title of the graph")
