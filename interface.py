@@ -16,7 +16,7 @@ class Interface(ctk.CTk):
         self.label = ctk.CTkLabel(self, text="Pharmacokineticks simulator v1.0",font=("Helvetica",18,"bold"))
         self.label.grid(row=0, column=1, columnspan=3, padx=10, pady=5, sticky="w")
         
-        self.scrollable_frame = MyScrollableCheckboxFrame(self)
+        self.scrollable_frame = ScrollableFrame(self)
         self.scrollable_frame.grid(row=1, column=0, padx=(10,10), pady=10, sticky="nsew",columnspan=3)
 
         button_frame = ctk.CTkFrame(self,width=750,height=50)
@@ -91,7 +91,7 @@ class Interface(ctk.CTk):
         self.error_lable.configure(text="",text_color="red")
 
 
-class MyScrollableCheckboxFrame(ctk.CTkScrollableFrame):
+class ScrollableFrame(ctk.CTkScrollableFrame):
     def __init__(self,master):
         super().__init__(master,width=750, height=350)
         self.master = master
